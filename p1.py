@@ -1,27 +1,91 @@
-# Exercise 1
-import ccHistStuff as cc
-import numpy as np
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb 17 10:47:55 2019
+
+@author: katieturnlund
+"""
+
+#Katherine Turnlund
+#
+#Homework #5: Exercise 1
+
+#Start with a Monte Carlo integration of integral, then evaluate integral @ varying alpha values.
+
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.special as sp
 
 
-#Load the .npy array, store it into x
+#number of points for MC integration
+N = 1000
 
-x = np.load('dataSet.npy')
+#Given function to integrate over (given alpha, beta)
 
-#Determine number of bins: integer values of set of data
+def harmOsc(alpha,beta):
+    return 2 / (np.pi * (np.sqrt(1 - (np.sin(alpha / 2)) ** 2 * (np.sin(beta)) ** 2)))
 
-x_list = list(set(np.around(x)))
-bin_count = len(x_list)
+#Monte Carlo integration function (given alpha)
 
-#Make histogram
+def MonteCarlo(alpha, N):
+    
+    #define function values for the interval
+    
+    beta_set = np.linspace(0,np.pi/2,N)
+    harmOsc_set = np.zeros(N)
+    
+    for i in range(N):
+        harmOsc_set[i] = harmOsc(alpha,beta_set[i])
+        
+    min_HO = np.amin(harmOsc_set)
+    max_HO = np.amax(harmOsc_set)
+    interval_HO = max_HO - min_HO
+    
+    #create random vectors within respective intervals
+    
+    beta_random = np.random.rand(N)*np.pi/2
+    harmOsc_random = min_HO + interval_HO*np.random.rand(N)
+    
+    count_below = []
+    
+    #Check if random numbers are below function value
+    
+    for i in range(N):
+        if harmOsc_random[i] < harmOsc(alpha, beta_random[i]):
+            count_below.append(harmOsc_random[i])
+    
+    frac_below = len(count_below)/N
+    interval_area = np.pi/2 * interval_HO
+    area_below = np.pi/2 * min_HO
+    
+    integral = interval_area * frac_below + area_below
+    
+    return integral
 
-fig, ax = plt.subplots()
-plt.hist(x, bins = bin_count)
-contents, binEdges, _ = ax.hist(x, bin_count, histtype='step', log=False, color='blue')
-plt.yscale('log')
-cc.statBox(ax, x, binEdges)
-plt.title('Distribution of the Data loaded from dataSet.npy')
-plt.ylabel('Count of x value')
-plt.xlabel('x value')
+#Defining integral approximation
+
+alpha = np.linspace(1,91,90)
+T_over_T0 = np.zeros(90)
+
+for i in range(90):
+    T_over_T0[i] = MonteCarlo(alpha[i],N)
+
+#Defining exact integral
+    
+m = (np.sin(alpha/2))**2
+exact_T_over_T0 = sp.ellipk(m)*2/np.pi
+
+diff_T_T0 = exact_T_over_T0-T_over_T0
+
+#plot values
+
+plt.plot(alpha,T_over_T0,'r-',label = 'Integral Approximation')
+plt.plot(alpha, exact_T_over_T0, 'k:', label = 'Exact Integral')
+plt.xlim([0,90])
+plt.ylim([0,4])
+plt.xlabel('Alpha (Degrees)')
+plt.ylabel('T/To')
+plt.title('Period of Oscillation of a Pendulum without the Small Angle Approximation')
+plt.legend()
+
 plt.show()
-

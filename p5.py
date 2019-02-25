@@ -1,46 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Feb 14 15:12:13 2019
+Created on Fri Feb 22 15:20:31 2019
 
 @author: katieturnlund
 """
 
-#Exercise 5
+
+#Katherine Turnlund
+
+#Homework #5 Exercise 5
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-#Determine x values
+#define the function we're trying to find the root of: xcos(x)-1/2=0
+def xcosx(x):
+    return x * np.cos(x) - 0.5
 
-mu = 3
-sigma = 0.5
-N = 5
+#Define beginning parameters
+a = 0.6
+b = 0.8
+c = 0.7
+f_a = xcosx(a)
+f_b = xcosx(b)
+f_c = 1
 
-x = np.linspace(-3,15,100)
+#Bisection method while loop to get f(c) within error margin
+while abs(f_c) >= 0.00001:
+    c = (a+b)/2
+    f_c = xcosx(c)
+    if f_c < 0:
+        a = c
+    elif f_c > 0:
+        b = c
 
-estimate_fx = []
-
-#set function
-def g(x,y):
-    return np.exp(-x-y)*(x+y)**N
- 
-    
-#Iterate through x, calculate g(y)
-for i in range(len(x)):
-    y = np.random.normal(loc = 3, scale = 0.5, size = 1000)
-    gy = []
-    for j in range(len(y)):
-        new_g = g(x[i],y[j])
-        gy.append(new_g)
-    estimate_fx.append(sum(gy)/len(y))
-
-#Plot figure
-fig, ax = plt.subplots()
-
-plt.plot(x,estimate_fx)
-plt.xlabel('x')
-plt.xlim(-3,15)
-plt.ylabel('Estimate of f(x)')
-plt.title('f(x) Estimation with N=5')
-plt.show()
+print("The solution to xcos(x) = 1/2 is %.4f with an error margin of 0.0001" % (c))
+        

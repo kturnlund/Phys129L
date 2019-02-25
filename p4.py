@@ -1,67 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Feb 14 15:12:08 2019
+Created on Wed Feb 20 19:18:47 2019
 
 @author: katieturnlund
 """
 
-#Exercise 4
+#Katherine Turnlund
 
-import ccHistStuff as cc
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.stats as stats
+#Homework #5 Exercise 4
 
-def myPDF(x,y):
-    return 1/7*(x+y)
+#Prompt user for  number: 16-bit integer most likely?
 
-def proposal(x):
-    step = 0.5
-    return x - step + 2*step*np.random.rand()
+userInput = input('Enter a 16-bit integer: ')
 
-xstart = 0.5
-n      = 100000
-nBurn  = 10000
+listedInput = list(userInput) #separates all digits of inputted binary number
 
-ystart = 3.
+#1st four digits go to channel number reading
+bitChannel = listedInput[0] + listedInput[1] + listedInput[2] + listedInput[3]
 
-xlow = 0.
-ylow = 2.
-xhigh = 1.
-yhigh = 4.
+#2nd four digits go to time reading
+bitTime = listedInput[4] + listedInput[5] + listedInput[6] + listedInput[7]
 
-function = []
+#remaining digits go to pulse height reading
+bitPulseHeight = ''
+for i in range(8):
+    n = i + 8
+    bitPulseHeight = bitPulseHeight + listedInput[n]
+    
+#change strings into integers with binary reading
+numChannel = int(bitChannel,2)
+numTime = int(bitTime,2)
+numPulseHeight = int(bitPulseHeight,2)
 
-xlist = [xstart]
-ylist = [ystart]
-
-for i in range(n+nBurn-1):
-    xp    = proposal(xlist[-1])
-    yp    = proposal(ylist[-1])
-    fnow  = myPDF(xlist[-1], ylist[-1])
-    fnext = myPDF(xp, yp)
-    if np.random.rand() < fnext/fnow and xp >= xlow and xp <= xhigh and yp >= ylow and yp <= yhigh:
-        xlist.append(xp)
-        ylist.append(yp)
-    else:
-        xlist.append(xlist[-1])
-        ylist.append(ylist[-1])
-        
-yr = np.array( ylist[nBurn : ] )
-xr = np.array( xlist[nBurn : ] )
-
-plt.hist2d(xr,yr)
-plt.show()
-
-
-def g(x,y):
-    return 7*(x+2*y)
-
-for i in range(len(xr)):
-    function.append(g(xr[i],yr[i]))
-
-integral = sum(function)/len(xr)
-
-print('The estimate of the integral is %5f' % (integral))
+#print values obtained. Would prefer to use units accompanying but no units were specified.
+print('Channel Number: %d' % (numChannel))
+print('Time: %d' % (numTime))
+print('Pulse Height: %d' % (numPulseHeight))
